@@ -1347,7 +1347,10 @@ static void fbcon_cursor(struct vc_data *vc, int mode)
 		y = 0;
 	}
 
-	ops->cursor(vc, info, mode, y, get_color(vc, info, c, 1),
+	if (!ops->cursor)
+		return;
+
+        ops->cursor(vc, info, mode, y, get_color(vc, info, c, 1),
 		    get_color(vc, info, c, 0));
 }
 
