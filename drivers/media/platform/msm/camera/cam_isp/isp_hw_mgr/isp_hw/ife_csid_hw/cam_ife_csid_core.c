@@ -2677,14 +2677,6 @@ static int cam_ife_csid_release(void *hw_priv,
 	case CAM_ISP_RESOURCE_PIX_PATH:
 		res->res_state = CAM_ISP_RESOURCE_STATE_AVAILABLE;
 		cam_ife_csid_reset_init_frame_drop(csid_hw);
-		if (res->res_id == CAM_IFE_PIX_PATH_RES_IPP)
-			csid_hw->ipp_path_config.measure_enabled = 0;
-		else if (res->res_id == CAM_IFE_PIX_PATH_RES_PPP)
-			csid_hw->ppp_path_config.measure_enabled = 0;
-		else if (res->res_id >= CAM_IFE_PIX_PATH_RES_RDI_0 &&
-			res->res_id <= CAM_IFE_PIX_PATH_RES_RDI_3)
-			csid_hw->rdi_path_config[res->res_id].measure_enabled
-				= 0;
 		break;
 	default:
 		CAM_ERR(CAM_ISP, "CSID:%d Invalid res type:%d res id%d",
