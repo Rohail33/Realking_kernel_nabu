@@ -927,7 +927,7 @@ icmp_msgs_per_sec - INTEGER
 icmp_msgs_burst - INTEGER
 	icmp_msgs_per_sec controls number of ICMP packets sent per second,
 	while icmp_msgs_burst controls the burst size of these packets.
-        For security reasons, the precise burst size is randomized.
+	For security reasons, the precise burst size is randomized.
 	Default: 50
 
 icmp_ratemask - INTEGER

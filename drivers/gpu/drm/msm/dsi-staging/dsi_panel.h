@@ -121,6 +121,7 @@ struct dsi_backlight_config {
 	u32 bl_level;
 	u32 bl_scale;
 	u32 bl_scale_ad;
+	bool bl_inverted_dbv;
 
 	int en_gpio;
 	bool bl_remap_flag;
