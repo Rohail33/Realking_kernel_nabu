@@ -2449,8 +2449,6 @@ static int kgsl_setup_anon_useraddr(struct kgsl_pagetable *pagetable,
 	/* Map an anonymous memory chunk */
 	int ret;
 
-	int ret;
-
 	if (size == 0 || offset != 0 ||
 		!IS_ALIGNED(size, PAGE_SIZE))
 		return -EINVAL;
