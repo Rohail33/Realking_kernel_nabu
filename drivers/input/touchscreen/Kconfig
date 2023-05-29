@@ -1318,6 +1318,22 @@ config TOUCHSCREEN_RAYDIUM_CHIPSET
 
 	  If unsure, say N.
 
-source "drivers/input/touchscreen/focaltech_touch/Kconfig"
+
+config TOUCHSCREEN_COMMON
+	bool "Common touchscreen interface to interact with userspace"
+	default y
+	help
+	  Say Y here if you want to control touchpanel features via
+	  /sys/touchpanel.
+
+	  If unsure, say N.
+
+config TOUCHSCREEN_NT36XX
+        bool "nt36xxx Touchscreen Driver"
+        depends on I2C
+        help
+          Say Y here if you have a nt36xxx Touchscreen.
+
+          If unsure, say N.
 
 endif
