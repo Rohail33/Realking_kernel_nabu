@@ -9,8 +9,6 @@
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- *
- * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
  */
 
 #ifndef __SMB5_CHARGER_H
@@ -110,7 +108,6 @@ enum print_reason {
 #define MAIN_FCC_VOTER			"MAIN_FCC_VOTER"
 #define DCIN_AICL_VOTER			"DCIN_AICL_VOTER"
 #define OVERHEAT_LIMIT_VOTER		"OVERHEAT_LIMIT_VOTER"
-#define GPIO_DCIN_VOTER			"GPIO_DCIN_VOTER"
 
 #define FCC_VOTER			"FCC_VOTER"
 #define ICL_CHANGE_VOTER		"ICL_CHANGE_VOTER"
@@ -714,7 +711,6 @@ struct smb_charger {
 	struct delayed_work	role_reversal_check;
 	struct delayed_work	pr_swap_detach_work;
 	struct delayed_work	pr_lock_clear_work;
-	struct delayed_work	micro_usb_switch_work;
 
 	struct delayed_work	check_vbus_work;
 	struct delayed_work     check_init_boot;
@@ -917,16 +913,75 @@ struct smb_charger {
 	int			dcin_uv_count;
 	ktime_t			dcin_uv_last_time;
 	int			last_wls_vout;
-	/* GPIO DCIN Supply */
-	int			micro_usb_gpio;
-	int			micro_usb_irq;
-	int			dc_9v_gpio;
-	int			dc_9v_irq;
-	int			usb_switch_gpio;
-	int			usb_hub_33v_en_gpio;
-	int			micro_usb_pre_state;
-	bool			dcin_uusb_over_gpio_en;
-	bool			aicl_disable;
+	int			wireless_vout;
+	int			flag_dc_present;
+	int			flag_cp_en;
+	int			power_good_en;
+	int			fake_dc_on;
+	int			fake_dc_flag;
+	int			last_batt_stat;
+	int			last_vout_set;
+	/* charger type recheck */
+	int			recheck_charger;
+	int			precheck_charger_type;
+	/* workarounds */
+	bool			cc_un_compliant_detected;
+	bool			snk_debug_acc_detected;
+	bool			support_wireless;
+	bool			wireless_bq;
+	bool			support_conn_therm;
+	bool			ext_fg;
+	int			conn_detect_count;
+	int			vbus_disable_gpio;
+	int			remove_comp;
+	u64			last_ffc_remove_time;
+
+	/* used for bq charge pump solution */
+	struct usbpd		*pd;
+	bool			use_bq_pump;
+
+	/* reduce fcc for esr cal*/
+	int			esr_work_status;
+	bool			cp_charge_enabled;
+	int			charge_type;
+	int			charge_status;
+	int			batt_health;
+
+	bool			override_ffc_term_current;
+	/* for 27W charge*/
+	bool			temp_27W_enable;
+
+	/* used for 6pin new battery step charge */
+	bool			six_pin_step_charge_enable;
+	bool			init_start_vbat_checked;
+	struct six_pin_step_data			six_pin_step_cfg[MAX_STEP_ENTRIES];
+	u32			start_step_vbat;
+	int			trigger_taper_count;
+	int			index_vfloat;
+
+	/* fast full charge related */
+	int			chg_term_current_thresh_hi_from_dts;
+	bool			support_ffc;
+	int			ffc_low_tbat;
+	int			ffc_high_tbat;
+	bool			slowly_charging;
+	bool			already_start_step_charge_work;
+	bool			bq_input_suspend;
+
+	bool			hvdcp_recheck_status;
+
+	/* QC3P5 related */
+	bool			qc3p5_supported;
+	bool			qc3p5_auth_complete;
+	bool			qc3p5_authenticated;
+	bool			qc3p5_authentication_started;
+	bool			qc3p5_dp_tune_rapidly;
+	int 			qc3p5_power_limit_w;
+
+	bool			pps_fcc_therm_work_disabled;
+	int			wls_cp_vin;
+	int64_t oob_rpp_msg_cnt;
+	int64_t oob_cep_msg_cnt;
 };
 
 int smblib_read(struct smb_charger *chg, u16 addr, u8 *val);
@@ -989,7 +1044,6 @@ irqreturn_t typec_or_rid_detection_change_irq_handler(int irq, void *data);
 irqreturn_t temp_change_irq_handler(int irq, void *data);
 irqreturn_t usbin_ov_irq_handler(int irq, void *data);
 irqreturn_t sdam_sts_change_irq_handler(int irq, void *data);
-irqreturn_t smb_micro_usb_irq_handler(int irq, void *data);
 int smblib_get_prop_input_suspend(struct smb_charger *chg,
 				union power_supply_propval *val);
 int smblib_get_prop_batt_present(struct smb_charger *chg,
