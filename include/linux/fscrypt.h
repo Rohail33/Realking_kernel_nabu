@@ -222,6 +222,9 @@ int fscrypt_d_revalidate(struct dentry *dentry, unsigned int flags);
 int fscrypt_ioctl_set_policy(struct file *filp, const void __user *arg);
 int fscrypt_ioctl_get_policy(struct file *filp, void __user *arg);
 int fscrypt_ioctl_get_policy_ex(struct file *filp, void __user *arg);
+extern int fscrypt_ioctl_decrypt_filename(struct file *, struct encrypt_fname *);
+extern int fscrypt_ioctl_decrypt_filename_v1(struct file *, void __user *);
+extern int fscrypt_ioctl_decrypt_filename_v2(struct file *, void __user *);
 int fscrypt_ioctl_get_nonce(struct file *filp, void __user *arg);
 int fscrypt_has_permitted_context(struct inode *parent, struct inode *child);
 int fscrypt_inherit_context(struct inode *parent, struct inode *child,
