@@ -2071,6 +2071,7 @@ struct sched_walt_cpu_load {
 	unsigned long prev_window_util;
 	unsigned long nl;
 	unsigned long pl;
+	bool rtgb_active;
 	u64 ws;
 };
 
@@ -2089,6 +2090,14 @@ static inline unsigned long cpu_util_cum(int cpu, int delta)
 
 	return (delta >= capacity) ? capacity : delta;
 }
+
+static inline unsigned long cpu_util_rt(int cpu)
+{
+        struct rt_rq *rt_rq = &(cpu_rq(cpu)->rt);
+
+        return rt_rq->avg.util_avg;
+}
+
 
 
 #ifdef CONFIG_SCHED_WALT
@@ -2149,13 +2158,6 @@ cpu_util_freq(int cpu, struct sched_walt_cpu_load *walt_load)
 }
 
 #else
-
-static inline unsigned long cpu_util_rt(int cpu)
-{
-	struct rt_rq *rt_rq = &(cpu_rq(cpu)->rt);
-
-	return rt_rq->avg.util_avg;
-}
 
 static inline unsigned long
 cpu_util_freq(int cpu, struct sched_walt_cpu_load *walt_load)

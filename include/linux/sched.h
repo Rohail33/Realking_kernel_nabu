@@ -353,6 +353,12 @@ struct sched_info {
 #endif /* CONFIG_SCHED_INFO */
 };
 
+static inline unsigned long map_util_freq(unsigned long util,
+					unsigned long freq, unsigned long cap)
+{
+	return (freq + (freq >> 2)) * util / cap;
+}
+
 /*
  * Integer metrics need fixed point arithmetic, e.g., sched/fair
  * has a few: load, load_avg, util_avg, freq, and capacity.
