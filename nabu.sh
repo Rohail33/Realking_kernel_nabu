@@ -5,14 +5,14 @@ LINKER="lld"
 DIR=`readlink -f .`
 MAIN=`readlink -f ${DIR}/..`
 KERNEL_DEFCONFIG=nabu_defconfig
-export PATH="$MAIN/clang/bin:$PATH"
+export PATH="$MAIN/proton/bin:$PATH"
 export ARCH=arm64
 export SUBARCH=arm64
-export KBUILD_COMPILER_STRING="$($MAIN/clang/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')"
+export KBUILD_COMPILER_STRING="$($MAIN/proton/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')"
 
-if ! [ -d "$MAIN/clang" ]; then
-echo "ZYC clang not found! Cloning..."
-if ! git clone -q https://gitlab.com/ZyCromerZ/clang.git --depth=1 --single-branch $MAIN/clang; then
+if ! [ -d "$MAIN/proton" ]; then
+echo "PROTON clang not found! Cloning..."
+if ! git clone -q https://github.com/kdrag0n/proton-clang.git --depth=1 --single-branch $MAIN/proton; then
 echo "Cloning failed! Aborting..."
 exit 1
 fi
