@@ -23,3 +23,18 @@ fi;
 # patch_cmdline androidboot.selinux androidboot.selinux=permissive
 # patch_cmdline ramoops_memreserve ramoops_memreserve=8M
 	write_boot;
+
+## vendor_boot shell variables
+block=/dev/block/bootdevice/by-name/vendor_boot;
+is_slot_device=1;
+ramdisk_compression=auto;
+patch_vbmeta_flag=auto;
+
+# reset for vendor_boot patching
+reset_ak;
+
+# vendor_boot install
+dump_boot;
+
+write_boot;
+## end vendor_boot install
