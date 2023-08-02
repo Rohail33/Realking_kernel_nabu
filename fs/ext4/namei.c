@@ -3877,7 +3877,7 @@ static int ext4_rename(struct inode *old_dir, struct dentry *old_dentry,
 			return retval;
 	}
 
-	old.bh = ext4_find_entry(old.dir, &old.dentry->d_name, &old.de, &old.lblk), &old.inlined);
+	old.bh = ext4_find_entry(old.dir, &old.dentry->d_name, &old.de, &old.lblk, &old.inlined);
 
 	if (IS_ERR(old.bh))
 		return PTR_ERR(old.bh);
