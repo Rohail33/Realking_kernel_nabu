@@ -1085,7 +1085,7 @@ static int dsi_panel_parse_timing(struct dsi_mode_info *mode,
 				"qcom,mdss-dsi-panel-framerate",
 				&mode->refresh_rate);
 
-	if(in_recovery)
+	if(!in_recovery)
 		mode->refresh_rate = 104;
 
 	if (rc) {
@@ -1640,7 +1640,7 @@ static int dsi_panel_parse_dfps_caps(struct dsi_panel *panel)
 	const char *type;
 	u32 i;
 
-	if(in_recovery){
+	if(!in_recovery){
 		dfps_caps->dfps_support = false;
 		return rc;
 	}
