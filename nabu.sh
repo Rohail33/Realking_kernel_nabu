@@ -1,9 +1,10 @@
 #!/bin/bash
 #set -e
+
 ## Copy this script inside the kernel directory
 LINKER="lld"
-DIR=`readlink -f .`
-MAIN=`readlink -f ${DIR}/..`
+DIR=$(readlink -f .)
+MAIN=$(readlink -f ${DIR}/..)
 KERNEL_DEFCONFIG=nabu_defconfig
 export PATH="$MAIN/proton/bin:$PATH"
 export ARCH=arm64
@@ -11,13 +12,14 @@ export SUBARCH=arm64
 export KBUILD_COMPILER_STRING="$($MAIN/proton/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')"
 
 if ! [ -d "$MAIN/proton" ]; then
-echo "PROTON clang not found! Cloning..."
-if ! git clone -q https://github.com/kdrag0n/proton-clang.git --depth=1 --single-branch $MAIN/proton; then
-echo "Cloning failed! Aborting..."
-exit 1
+    echo "Proton clang not found! Cloning..."
+    if ! git clone https://github.com/kdrag0n/proton-clang.git --depth=1 --single-branch $MAIN/proton; then
+        echo "Cloning failed! Aborting..."
+        exit 1
+    fi
 fi
-fi
-KERNEL_DIR=`pwd`
+
+KERNEL_DIR=$(pwd)
 ZIMAGE_DIR="$KERNEL_DIR/out/arch/arm64/boot"
 # Speed up build process
 MAKE="./makeparallel"
@@ -28,9 +30,42 @@ yellow='\033[0;33m'
 red='\033[0;31m'
 nocol='\033[0m'
 
-# kernel-SU add
+echo -e "$blue***********************************************"
+echo "          Initializing Kernel Compilation          "
+echo -e "***********************************************$nocol"
+
+# Create a function to revert changes
+revert_changes() {
+    sed -i 's/qcom,mdss-pan-physical-width-dimension = <1474>;$/qcom,mdss-pan-physical-width-dimension = <147>;/' arch/arm64/boot/dts/qcom/dsi-panel-k82-42-02-0a-video.dtsi
+    sed -i 's/qcom,mdss-pan-physical-height-dimension = <2359>;$/qcom,mdss-pan-physical-height-dimension = <236>;/' arch/arm64/boot/dts/qcom/dsi-panel-k82-42-02-0a-video.dtsi
+}
+
+# Prompt the user for the build type (MIUI or AOSP)
+echo "Choose the build type:"
+echo "1. MIUI"
+echo "2. AOSP"
+read -p "Enter the number of your choice: " build_choice
+
+zip_name=""
+if [ "$build_choice" = "1" ]; then
+    # Modify lines in the dtsi file for MIUI
+    sed -i 's/qcom,mdss-pan-physical-width-dimension = <147>;$/qcom,mdss-pan-physical-width-dimension = <1474>;/' arch/arm64/boot/dts/qcom/dsi-panel-k82-42-02-0a-video.dtsi
+    sed -i 's/qcom,mdss-pan-physical-height-dimension = <236>;$/qcom,mdss-pan-physical-height-dimension = <2359>;/' arch/arm64/boot/dts/qcom/dsi-panel-k82-42-02-0a-video.dtsi
+    zip_name="MIUI"
+elif [ "$build_choice" = "2" ]; then
+    # No modifications needed for AOSP build
+    echo "AOSP build selected. No modifications needed."
+    zip_name="AOSP"
+else
+    echo "Invalid choice. Exiting..."
+    exit 1
+fi
+
+# Kernel-SU add
+
 curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -
 
+# Build the kernel
 echo "**** Kernel defconfig is set to $KERNEL_DEFCONFIG ****"
 echo -e "$blue***********************************************"
 echo "          BUILDING KERNEL          "
@@ -54,11 +89,15 @@ cd tmp
 7za a -mx9 tmp.zip *
 cd ..
 rm *.zip
-cp -fp tmp/tmp.zip RealKing-Nabu-Aosp-$TIME.zip
+cp -fp tmp/tmp.zip RealKing-Nabu-${zip_name}-$TIME.zip
 rm -rf tmp
 echo $TIME
 
-# Kernel-SU remove
+# Kernel-SU Remove
+
 git checkout drivers/Makefile &>/dev/null
 rm -rf KernelSU
 rm -rf drivers/kernelsu
+
+# Revert changes back to the original state
+revert_changes
